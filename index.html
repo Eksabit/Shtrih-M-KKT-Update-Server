@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="icon" href="web/favicon-32.png" sizes="32x32" type="image/png">
+    <title>Shtrih-M KKT Update Server V1.4</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: #ffffff;
+            text-align: center;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .card {
+            background: #1e1e1e;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(6, 6, 6, 0.75); /* Дьявольская тень  ¯\_(ツ)_/¯  */
+        }
+        .card h2 {
+            margin-top: 0;
+            color: #007BFF;
+        }
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            background: #2a2a2a;
+            color: #ffffff;
+            padding: 10px;
+            border-radius: 3px;
+            overflow: auto;
+        }
+        #historyContent {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Сервер для обновления ККТ Штрих-М V1.4</h1>
+
+    <div class="card">
+        <h2>История подключений</h2>
+        <pre id="historyContent">Загрузка...</pre>
+    </div>
+
+    <div class="card">
+        <h2>Конфигурация сервера</h2>
+        <pre id="configContent">Загрузка...</pre>
+    </div>
+
+    <div class="card">
+        <h2>Информация</h2>
+        <pre id="readmeContent">Загрузка...</pre>
+    </div>
+</div>
+
+<script>
+    // Функция для загрузки содержимого файла
+    async function loadFile(filePath, elementId) {
+        try {
+            const response = await fetch(filePath, { cache: "no-store" }); // Отключаем кэш
+            if (!response.ok) throw new Error('Ошибка загрузки файла');
+            const text = await response.text();
+            document.getElementById(elementId).textContent = text;
+
+            // Прокрутка к концу содержимого, если это история подключений
+            if (elementId === 'historyContent') {
+                const historyElement = document.getElementById('historyContent');
+                historyElement.scrollTop = historyElement.scrollHeight;
+            }
+        } catch (error) {
+            document.getElementById(elementId).textContent = 'Не удалось загрузить содержимое: ' + error.message;
+        }
+    }
+
+    // Функция для обновления истории версий через заданный интервал
+    function startAutoUpdate(filePath, elementId, interval) {
+        loadFile(filePath, elementId); // Первоначальная загрузка
+        setInterval(() => {
+            loadFile(filePath, elementId); // Обновление через интервал
+        }, interval);
+    }
+
+    // Запускаем автоматическое обновление для history.log каждые 5 секунд (5000 мс)
+    startAutoUpdate('history.log', 'historyContent', 3600000);
+    loadFile('config.py', 'configContent');
+    loadFile('README.md', 'readmeContent');
+</script>
+
+<!-- Версия для тестирования с Logging GIT --> 
+</body>
+</html>
